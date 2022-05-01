@@ -1,7 +1,10 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const baseURL = 'http://192.168.1.14:8080/api';
+const PROD_URL = 'https://cafe-app-react-native.herokuapp.com/api';
+const DEV_URL = 'http://192.168.1.14:8080/api';
+
+const baseURL = PROD_URL;
 
 const productsApi = axios.create({
   baseURL,
