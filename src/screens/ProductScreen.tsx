@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useLayoutEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   Button,
   StyleSheet,
@@ -16,12 +16,15 @@ import {ProductsStackParams} from '../navigator/ProductsNavigator';
 import {useCategories} from '../hooks/useCategories';
 import {useForm} from '../hooks/useForm';
 import {ProductsContext} from '../context/ProductsContext';
+import {launchCamera} from 'react-native-image-picker';
 
 interface Props
   extends StackScreenProps<ProductsStackParams, 'ProductScreen'> {}
 
 export const ProductScreen = ({navigation, route}: Props) => {
   const {id = '', name = ''} = route.params;
+
+  const [tempUri, setTempUri] = useState<string>();
 
   const {categories} = useCategories();
 
@@ -70,6 +73,21 @@ export const ProductScreen = ({navigation, route}: Props) => {
     }
   };
 
+  const takePhoto = () => {
+    launchCamera(
+      {
+        mediaType: 'photo',
+        quality: 0.5,
+      },
+      resp => {
+        if (resp.didCancel) return;
+        if (!resp.assets![0].uri) return;
+
+        setTempUri(resp.assets![0].uri);
+      },
+    );
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -104,7 +122,7 @@ export const ProductScreen = ({navigation, route}: Props) => {
             <Button
               title="Camera"
               //TODO: implement onPress
-              onPress={() => {}}
+              onPress={takePhoto}
               color="#5856D6"
             />
 
@@ -119,11 +137,20 @@ export const ProductScreen = ({navigation, route}: Props) => {
           </View>
         )}
 
-        {image.length > 0 && (
-          <Image source={{uri: image}} style={{width: '100%', height: 300}} />
+        {image.length > 0 && !tempUri && (
+          <Image
+            source={{uri: image}}
+            style={{marginTop: 20, width: '100%', height: 300}}
+          />
         )}
 
         {/* TODO: Display temp image */}
+        {tempUri && (
+          <Image
+            source={{uri: tempUri}}
+            style={{marginTop: 20, width: '100%', height: 300}}
+          />
+        )}
       </ScrollView>
     </View>
   );
