@@ -1,4 +1,7 @@
 import React, {createContext, useEffect, useState} from 'react';
+
+import {ImagePickerResponse} from 'react-native-image-picker';
+
 import productsApi from '../api/productsApi';
 import {Product, ProductsResponse} from '../interfaces/appInterfaces';
 
@@ -81,8 +84,28 @@ export const ProductsProvider = ({children}: any) => {
     return data;
   };
 
-  // TODO change ANY
-  const uploadImage = async (data: any, productId: string) => {};
+  const uploadImage = async (data: ImagePickerResponse, productId: string) => {
+    const imageData = data.assets![0];
+    const fileToUpload = {
+      uri: imageData.uri,
+      type: imageData.type,
+      name: imageData.fileName,
+    };
+
+    const formData = new FormData();
+    // el nombre que aparece en el body de la peticion
+    formData.append('archivo', fileToUpload);
+    try {
+      const resp = await productsApi.put(
+        `/uploads/productos/${productId}`,
+        formData,
+      );
+
+      console.log(resp.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <ProductsContext.Provider
       value={{
